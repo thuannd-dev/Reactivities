@@ -1,21 +1,46 @@
+using Application.Activities.Queries;
+using Application.Core;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+//************************************************************************************************
+//****************************** Add services to the container. ****************************
+//************************************************************************************************
+
 builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(opt =>
 {
     opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 builder.Services.AddCors();
-var app = builder.Build();
-
-//*********************** Configure the HTTP request pipeline.
 
 /*
-Adds a CORS middleware to your web application pipeline to allow cross domain requests.
+    Register various handlers from assembly - [kết quả biên dịch (compile) của project] containing given type - IRequestHandler
+    That means you just need specify one handler, and all other handlers which similar derivered 
+    will be discovered automatically (just in same project).
+*/
+builder.Services.AddMediatR(x => x.RegisterServicesFromAssemblyContaining<GetActivityList.Handler>());
+
+/*
+    Register auto mapper and specify where the assembly - [kết quả biên dịch (compile) của project]
+    is to register the mapping profiles with our application.
+    So I don't have to specify each mapping profile in this project.
+*/
+builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
+
+var app = builder.Build();
+
+
+
+
+//************************************************************************************************
+//****************************** Configure the HTTP request pipeline. ****************************
+//************************************************************************************************
+
+/*
+    Adds a CORS middleware to your web application pipeline to allow cross domain requests.
 */
 app.UseCors(options => options.AllowAnyHeader()
                                 .AllowAnyMethod()
@@ -29,8 +54,10 @@ app.UseCors(options => options.AllowAnyHeader()
 */
 app.MapControllers();
 
-//We can't get the service provider from the program class directly, (can't get it from class define it)
-//so we use service locator pattern to get the service provider from the app.
+/*
+    We can't get the service provider from the program class directly, (can't get it from class define it)
+    so we use service locator pattern to get the service provider from the app.
+*/
 using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
 
