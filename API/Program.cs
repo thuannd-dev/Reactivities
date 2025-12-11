@@ -1,5 +1,8 @@
+using API.Middleware;
 using Application.Activities.Queries;
+using Application.Activities.Validators;
 using Application.Core;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
@@ -21,7 +24,19 @@ builder.Services.AddCors();
     That means you just need specify one handler, and all other handlers which similar derivered 
     will be discovered automatically (just in same project).
 */
-builder.Services.AddMediatR(x => x.RegisterServicesFromAssemblyContaining<GetActivityList.Handler>());
+builder.Services.AddMediatR(x =>
+{
+    x.RegisterServicesFromAssemblyContaining<GetActivityList.Handler>();
+    //RegisterServicesFromAssemblyContaining will register all IRequestHandler in the assembly that contains the specified type.
+    //AddOpenBehavior will register a mediator middleware - a open generic type (<,>) - ValidationBehavior as a pipeline behavior 
+    // for handling validation for us instead of inject IValidator in each handler.
+    //=> So the order of registration will not be affected.
+    //But the oder registration in AddOpenBehavior is important, it will be the order of pipeline behaviors.
+    x.AddOpenBehavior(typeof(ValidationBehavior<,>));
+    //Because we don't know type in program class so we use open generic type.
+    //It means apply ValidationBehavior for all request in pipeline, regardless of the request and response.
+
+});
 
 /*
     Register auto mapper and specify where the assembly - [kết quả biên dịch (compile) của project]
@@ -29,6 +44,8 @@ builder.Services.AddMediatR(x => x.RegisterServicesFromAssemblyContaining<GetAct
     So I don't have to specify each mapping profile in this project.
 */
 builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
+builder.Services.AddValidatorsFromAssemblyContaining<CreateActivityValidator>();
+builder.Services.AddTransient<ExceptionMiddleware>();
 
 var app = builder.Build();
 
@@ -38,6 +55,7 @@ var app = builder.Build();
 //************************************************************************************************
 //****************************** Configure the HTTP request pipeline. ****************************
 //************************************************************************************************
+app.UseMiddleware<ExceptionMiddleware>();
 
 /*
     Adds a CORS middleware to your web application pipeline to allow cross domain requests.
