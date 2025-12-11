@@ -1,3 +1,4 @@
+using API.Middleware;
 using Application.Activities.Queries;
 using Application.Activities.Validators;
 using Application.Core;
@@ -43,8 +44,8 @@ builder.Services.AddMediatR(x =>
     So I don't have to specify each mapping profile in this project.
 */
 builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
-
 builder.Services.AddValidatorsFromAssemblyContaining<CreateActivityValidator>();
+builder.Services.AddTransient<ExceptionMiddleware>();
 
 var app = builder.Build();
 
@@ -54,6 +55,7 @@ var app = builder.Build();
 //************************************************************************************************
 //****************************** Configure the HTTP request pipeline. ****************************
 //************************************************************************************************
+app.UseMiddleware<ExceptionMiddleware>();
 
 /*
     Adds a CORS middleware to your web application pipeline to allow cross domain requests.
