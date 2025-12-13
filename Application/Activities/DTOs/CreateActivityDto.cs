@@ -6,7 +6,7 @@ namespace Application.Activities.DTOs;
 public class CreateActivityDto
 {
     //*********************Why using DataAnnotations instead of required modifier keyword**********************
-    //Using DataAnnotations instead of required modifier keyword because the respond error is better formatted
+    //Using DataAnnotations instead of required modifier keyword because the response error is better formatted
 
     //*********************Why using FluentValidation instead of DataAnnotations**********************
     //Using FluentValidation instead of DataAnnotations because FluentValidation is more powerful and flexible
@@ -16,8 +16,8 @@ public class CreateActivityDto
     // ====> So we use FluentValidation to handle validation in Business - Application layer.
  
     public string Title { get; set; } = "";
-    //DateTime is a reference type but don't get warning 
-    //beacause c# give a default value of DateTime is 1/ January 0001 00:00:00
+    //DateTime is a value type (struct) so don't get warning 
+    //because c# give a default value of DateTime is 1/ January 0001 00:00:00
     public DateTime Date { get; set; }
     //string is a reference type so it can warning if it is null
     //we can use nullable reference type to avoid this warning

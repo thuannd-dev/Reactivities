@@ -31,7 +31,7 @@ builder.Services.AddMediatR(x =>
     //AddOpenBehavior will register a mediator middleware - a open generic type (<,>) - ValidationBehavior as a pipeline behavior 
     // for handling validation for us instead of inject IValidator in each handler.
     //=> So the order of registration will not be affected.
-    //But the oder registration in AddOpenBehavior is important, it will be the order of pipeline behaviors.
+    //But the order registration in AddOpenBehavior is important, it will be the order of pipeline behaviors.
     x.AddOpenBehavior(typeof(ValidationBehavior<,>));
     //Because we don't know type in program class so we use open generic type.
     //It means apply ValidationBehavior for all request in pipeline, regardless of the request and response.

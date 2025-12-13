@@ -19,29 +19,28 @@ public class ActivitiesController : BaseApiController
     [HttpGet("{id}")]
     public async Task<ActionResult<Activity>> GetActivityDetail(string id)
     {
-        return await Mediator.Send(new GetActivityDetails.Query { Id = id });
+        return HandleResult(await Mediator.Send(new GetActivityDetails.Query { Id = id }));
     }
 
     [HttpPost]
     public async Task<ActionResult<string>> CreateActivity(CreateActivityDto activityDto)
     {
-        return await Mediator.Send(new CreateActivity.Command { ActivityDto = activityDto });
+        return HandleResult(await Mediator.Send(new CreateActivity.Command { ActivityDto = activityDto }));
     }
 
     [HttpPut]
     public async Task<ActionResult> EditActivity(Activity activity)
     {
-        await Mediator.Send(new EditActivity.Command { Activity = activity });
-
-        return NoContent();
+        //await Mediator.Send(new EditActivity.Command { Activity = activity }) return value type Result Unit
+        //You can also leave with type of controller is Task<ActionResult<Unit>> but user will get a body with {} -empty object
+        //This can't give valuable for user. => just return Task<ActionResult>
+        return HandleResult(await Mediator.Send(new EditActivity.Command { Activity = activity }));
     }
 
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteActivity(string id)
     {
-        await Mediator.Send(new DeleteActivity.Command { Id = id });
-
-        return Ok();
+        return HandleResult(await Mediator.Send(new DeleteActivity.Command { Id = id }));
     }
 
 }
