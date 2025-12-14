@@ -11,5 +11,7 @@ public class MappingProfiles : Profile
     {
         CreateMap<Activity, Activity>();
         CreateMap<CreateActivityDto, Activity>();
+        CreateMap<EditActivityDto, Activity>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore());
     }
 }

@@ -26,7 +26,7 @@ public class DeleteActivity
             
             var isSuccess = await context.SaveChangesAsync(cancellationToken) > 0;
 
-            if (!isSuccess) return Result<Unit>.Failure("Failed to delete the activity", 400);
+            if (!isSuccess) return Result<Unit>.Failure("Failed to delete the activity.", 400);
 
             return Result<Unit>.Success(Unit.Value);
         }
