@@ -27,6 +27,7 @@ agent.interceptors.response.use(
   async (error) => {
     await sleep(1000);
     store.uiStore.isIdle();
+    console.log(error.response);
 
     const { status, data } = error.response;
     switch (status) {
@@ -50,7 +51,7 @@ agent.interceptors.response.use(
         router.navigate("/not-found");
         break;
       case 500:
-        toast.error("Server error");
+        router.navigate("/server-error", { state: { error: data } });
         break;
       default:
         break;
