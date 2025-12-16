@@ -29,10 +29,10 @@ public class BaseActivityValidator<T, TDto> : AbstractValidator<T> where TDto
         RuleFor(x => selector(x).Venue)
             .NotEmpty().WithMessage("Venue is required");
         RuleFor(x => selector(x).Latitude)
-            .NotNull().WithMessage("Latitude is required")
+            .NotEmpty().WithMessage("Latitude is required")
             .InclusiveBetween(-90, 90).WithMessage("Latitude must be between -90 and 90");
         RuleFor(x => selector(x).Longitude)
-            .NotNull().WithMessage("Longitude is required")
+            .NotEmpty().WithMessage("Longitude is required")
             .InclusiveBetween(-180, 180).WithMessage("Longitude must be between -180 and 180");
     }
 }
