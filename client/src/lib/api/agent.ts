@@ -52,6 +52,8 @@ agent.interceptors.response.use(
         break;
       case 500:
         router.navigate("/server-error", { state: { error: data } });
+        //state exist in memory of navigation so it just have value in the same session SPA
+        //=> When user refresh the page or access directly, React Router not passing state and set location.state = null
         break;
       default:
         break;
