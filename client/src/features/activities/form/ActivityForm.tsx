@@ -1,7 +1,7 @@
 import { Box, Button, Paper, TextField, Typography } from "@mui/material";
 import { useActivities } from "../../../lib/hooks/useActivities";
 import { useParams } from "react-router";
-import { useForm, type FieldValues } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useEffect } from "react";
 import {
   activitySchema,
@@ -16,6 +16,7 @@ export default function ActivityForm() {
     handleSubmit,
     formState: { errors },
   } = useForm<ActivitySchema>({
+    mode: "onTouched",
     resolver: zodResolver(activitySchema),
   });
   const { id } = useParams();
@@ -27,7 +28,7 @@ export default function ActivityForm() {
   }, [activity, reset]);
   //reset stable → don't cause loop
 
-  const onSubmit = (data: FieldValues) => {
+  const onSubmit = (data: ActivitySchema) => {
     console.log(data);
   };
 
@@ -60,11 +61,15 @@ export default function ActivityForm() {
           multiline
           rows={3}
           defaultValue={activity?.description}
+          error={!!errors.description}
+          helperText={errors.description?.message}
         />
         <TextField
           {...register("category")}
           label="Category"
           defaultValue={activity?.category}
+          error={!!errors.category}
+          helperText={errors.category?.message}
         />
         <TextField
           {...register("date")}
@@ -75,16 +80,22 @@ export default function ActivityForm() {
               ? new Date(activity.date).toISOString().split("T")[0]
               : new Date().toISOString().split("T")[0]
           }
+          error={!!errors.date}
+          helperText={errors.date?.message}
         />
         <TextField
           {...register("city")}
           label="City"
           defaultValue={activity?.city}
+          error={!!errors.city}
+          helperText={errors.city?.message}
         />
         <TextField
           {...register("venue")}
           label="Venue"
           defaultValue={activity?.venue}
+          error={!!errors.venue}
+          helperText={errors.venue?.message}
         />
         <Box display="flex" justifyContent="end" gap={3}>
           <Button color="inherit">Cancel</Button>
