@@ -22,9 +22,11 @@ export const activitySchema = z.object({
   title: requiredString("Title"),
   description: requiredString("Description"),
   category: requiredString("Category"),
-  date: requiredString("Date"),
+  //input type of all z.coerce schemas is unknown
+  date: z.coerce.date({ error: "Date is required" }),
   city: requiredString("City"),
   venue: requiredString("Venue"),
 });
-
-export type ActivitySchema = z.infer<typeof activitySchema>;
+//change to input type from infer to get the schema the correct types for form input values
+//if don't use coerce, i prefer using z.infer
+export type ActivitySchema = z.input<typeof activitySchema>;
