@@ -24,8 +24,12 @@ export const activitySchema = z.object({
   category: requiredString("Category"),
   //input type of all z.coerce schemas is unknown
   date: z.coerce.date({ error: "Date is required" }),
-  city: requiredString("City"),
-  venue: requiredString("Venue"),
+  location: z.object({
+    venue: requiredString("Venue"),
+    city: z.string().optional(),
+    latitude: z.coerce.number(),
+    longitude: z.coerce.number(),
+  }),
 });
 //change to input type from infer to get the schema the correct types for form input values
 //if don't use coerce, i prefer using z.infer
