@@ -27,15 +27,18 @@ export type LocationIQSuggestion = {
   address: LocationIQAddress;
 };
 
-export type LocationIQAddress = {
+type LocationIQAddress = {
   name: string;
-  suburb: string;
+  house_number: string;
+  road: string;
+  suburb?: string;
   town?: string;
   village?: string;
   city?: string;
-  postcode?: string;
+  county: string;
+  state: string;
+  postcode: string;
   country: string;
   country_code: string;
-  state?: string;
-  road?: string;
+  neighbourhood?: string;
 };

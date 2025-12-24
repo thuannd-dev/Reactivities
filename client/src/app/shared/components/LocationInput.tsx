@@ -20,6 +20,8 @@ export default function LocationInput<T extends FieldValues>(props: Props<T>) {
   const [suggestions, setSuggestions] = useState<LocationIQSuggestion[]>([]);
   const [inputValue, setInputValue] = useState(field.value || "");
 
+  // hook to keep inputValue in sync with field.value (which is controlled by react-hook-form)
+  // when form is reset, user typing, user select suggestion, updated activity is loaded
   useEffect(() => {
     if (field.value && typeof field.value === "object") {
       setInputValue(field.value.venue || "");
@@ -34,11 +36,20 @@ export default function LocationInput<T extends FieldValues>(props: Props<T>) {
   // if the key were stolen then only thing happen is you are run into rate limits
 
   //The solution is upgrade plan.
-  // const locationUrl =
-  //   "https://us1.locationiq.com/v1/search?key=pk.189fdfdc9d391b6d41bcd59e5e376bac&limit=5&dedup=1&format=json&";
-
   const locationUrl =
     "https://api.locationiq.com/v1/autocomplete?key=pk.189fdfdc9d391b6d41bcd59e5e376bac&limit=5&dedupe=1&";
+
+  //The reason to use useMemo instead of useCallback here is to avoid creating a new debounced function on every render
+  //Doc: const cachedFn = useCallback(fn, dependencies)
+  //useCallback get a FUNCTION "HAVE BEEN CREATED outside of it" and return a memoized version of that function that only change if one of the dependencies change
+  //and useCallback has no control over how you create arguments to pass to it.
+  //debounce has been called by js to evulate arguments -> creates a new debounced function on every render
+  //But react see deps is [] so react skip the new debounced function and use the old one
+
+  //=> With using of useMemo, the debounced function is created only once
+  //Because doc: const cachedValue = useMemo(calculateValue, dependencies)
+  //In this case, it have been get a CALLBACK (factory function) which React will call when needed
+  //And with deps is [], you can ensure that debounce is called only once
   const fetchSuggestions = useMemo(
     () =>
       debounce(async (query: string) => {

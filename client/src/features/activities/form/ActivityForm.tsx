@@ -1,6 +1,6 @@
 import { Box, Button, Paper, Typography } from "@mui/material";
 import { useActivities } from "../../../lib/hooks/useActivities";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useForm } from "react-hook-form";
 import { useEffect } from "react";
 import {
@@ -19,17 +19,50 @@ export default function ActivityForm() {
     mode: "onTouched",
     resolver: zodResolver(activitySchema),
   });
+  const navigate = useNavigate();
   const { id } = useParams();
   const { updateActivity, createActivity, activity, isLoadingActivity } =
     useActivities(id);
 
   useEffect(() => {
-    if (activity) reset(activity);
+    if (activity)
+      reset({
+        ...activity,
+        location: {
+          city: activity.city,
+          venue: activity.venue,
+          latitude: activity.latitude,
+          longitude: activity.longitude,
+        },
+      });
   }, [activity, reset]);
   //reset is stable → don't cause loop
 
   const onSubmit = (data: ActivitySchema) => {
-    console.log(data);
+    const { location, ...rest } = data;
+    const flattenedData = { ...rest, ...location };
+
+    try {
+      if (activity) {
+        //update
+        //why using mutate instead of mutateAsync here?
+        //=> because suitable for operations UI simple, "fire-and-forget"
+        // no need to await for handling complex operations after success
+        updateActivity.mutate(
+          { ...activity, ...flattenedData },
+          {
+            onSuccess: () => navigate(`/activities/${activity.id}`),
+          }
+        );
+      } else {
+        //create
+        createActivity.mutate(flattenedData, {
+          onSuccess: (id) => navigate(`/activities/${id}`),
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   if (isLoadingActivity) {
@@ -56,13 +89,15 @@ export default function ActivityForm() {
           multiline
           rows={3}
         />
-        <SelectInput
-          items={categoryOptions}
-          label="Category"
-          control={control}
-          name="category"
-        />
-        <DateTimeInput label="Date" control={control} name="date" />
+        <Box display="flex" gap={3}>
+          <SelectInput
+            items={categoryOptions}
+            label="Category"
+            control={control}
+            name="category"
+          />
+          <DateTimeInput label="Date" control={control} name="date" />
+        </Box>
         <LocationInput
           control={control}
           label="Enter the location"
