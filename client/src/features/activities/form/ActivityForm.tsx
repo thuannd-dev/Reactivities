@@ -53,6 +53,8 @@ export default function ActivityForm() {
           {
             onSuccess: () => navigate(`/activities/${activity.id}`),
           }
+          /***************************************************/
+          //What needs to be done in the future: Handle error
         );
       } else {
         //create
