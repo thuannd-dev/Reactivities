@@ -53,6 +53,10 @@ export const router = createBrowserRouter([
       {
         path: "*",
         element: <Navigate replace to="/not-found" />,
+        //replace property replace the current entry in the History stack to avoid loop
+        //User enter url which does not exist → redirect to /not-found
+        //User click Back → come back to url which does not exist
+        //-> Continue redirect to /not-found → loop make user uncomfortable
       },
     ],
   },

@@ -1,6 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import agent from "../api/agent";
 import { useLocation } from "react-router";
+// has or no
+import type { Activity } from "../types";
+import type { FieldValues } from "react-hook-form";
 
 export const useActivities = (id?: string) => {
   const queryClient = useQueryClient();
@@ -36,7 +39,7 @@ export const useActivities = (id?: string) => {
   });
 
   const createActivity = useMutation({
-    mutationFn: async (activity: Activity) => {
+    mutationFn: async (activity: FieldValues) => {
       const response = await agent.post("/activities", activity);
       return response.data;
     },

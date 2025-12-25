@@ -50,6 +50,7 @@ public class ExceptionMiddleware(ILogger<ExceptionMiddleware> logger, IHostEnvir
 
     private static async Task HandleValidationException(HttpContext context, ValidationException ex)
     {
+        //error thrown by FluentValidation in ValidationBehavior (https://github.com/thuannd-dev/Reactivities/pull/2#issuecomment-3640161230)
         var validationErrors = new Dictionary<string, string[]>();
         if (ex.Errors is not null)
         {
