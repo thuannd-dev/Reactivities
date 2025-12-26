@@ -8,7 +8,7 @@ const requiredString = (fieldName: string) =>
     })
     .trim()
     .min(1, { error: `${fieldName} is required` });
-//Just when using controll input (controll input because using useController to create reusable input) you must need
+//Just when using control input (control input because using useController to create reusable input) you must need
 //{
 //   error: (issue) =>
 //     issue.input === undefined ? `${fieldName} is required` : "Not a string",
@@ -27,7 +27,7 @@ export const activitySchema = z.object({
   date: z.coerce
     .date<Date>({ error: "Date is required" })
     .min(new Date(), { error: "Date must be in the future" }),
-  //refine is a custom validation, you mustreturn a falsy value to signal failure
+  //refine is a custom validation, you must return a falsy value to signal failure
   location: z.object(
     {
       venue: requiredString("Venue"),
