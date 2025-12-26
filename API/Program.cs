@@ -51,7 +51,7 @@ builder.Services.AddTransient<ExceptionMiddleware>();
 builder.Services.AddIdentityApiEndpoints<User>(opt =>
 {
     opt.User.RequireUniqueEmail = true;
-}).AddRoles<IdentityUser>()
+}).AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<AppDbContext>();
 
 
@@ -95,8 +95,9 @@ var services = scope.ServiceProvider;
 try
 {
     var context = services.GetRequiredService<AppDbContext>();
+    var userManager = services.GetRequiredService<UserManager<User>>();
     await context.Database.MigrateAsync(); // Apply any pending migrations to the database.
-    await DbInitializer.SeedData(context); // Seed the database with initial data.
+    await DbInitializer.SeedData(context, userManager); // Seed the database with initial data.
 }
 catch (Exception ex)
 {
