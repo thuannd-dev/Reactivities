@@ -4,7 +4,9 @@ using Application.Activities.Validators;
 using Application.Core;
 using Domain;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
@@ -14,7 +16,18 @@ var builder = WebApplication.CreateBuilder(args);
 //****************************** Add services to the container. ****************************
 //************************************************************************************************
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(opt =>
+{
+    /*
+        Create a global authorization policy that require authenticated user
+        for all endpoints in the application by default.
+        So we don't need to add [Authorize] attribute in each controller.
+        If we wan't an endpoint don't require authenticated just add [AllowAnonymous]
+    */
+    var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+    opt.Filters.Add(new AuthorizeFilter(policy));
+
+});
 builder.Services.AddDbContext<AppDbContext>(opt =>
 {
     opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
