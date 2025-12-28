@@ -61,6 +61,7 @@ builder.Services.AddMediatR(x =>
 builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
 builder.Services.AddValidatorsFromAssemblyContaining<CreateActivityValidator>();
 builder.Services.AddTransient<ExceptionMiddleware>();
+builder.Services.AddTransient<DisableRouteMiddleware>();
 builder.Services.AddIdentityApiEndpoints<User>(opt =>
 {
     opt.User.RequireUniqueEmail = true;
@@ -88,6 +89,8 @@ app.UseCors(options => options.AllowAnyHeader()
 app.UseAuthentication();
 app.UseAuthorization();          
 
+app.UseMiddleware<DisableRouteMiddleware>();
+
 /*
 * MapControllers middleware provide the routing for application.
 * It maps - pass the incoming HTTP requests to the appropriate- phù hợp controller actions.
@@ -96,18 +99,9 @@ app.UseAuthorization();
 */
 app.MapControllers();
 
-app.Use(async (context, next) =>
-{
-    if (context.Request.Path.Equals("/api/register", StringComparison.OrdinalIgnoreCase))
-    {
-        context.Response.StatusCode = StatusCodes.Status404NotFound;
-        return;
-    }
- 
-    await next();
-});
 
-app.MapGroup("api").MapIdentityApi<User>(); //  api/login
+//Routing (apply /api prefix) - Ex : api/login
+app.MapGroup("api").MapIdentityApi<User>();
 
 
 /*

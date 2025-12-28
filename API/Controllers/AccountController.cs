@@ -35,13 +35,13 @@ public class AccountController(SignInManager<User> signInManager) : BaseApiContr
     }
 
     //We use this endpoint to test if the user is authenticated or not and get user info
-    // And a question will by raise in your mind: why this endpoint is AllowAnonymous?
+    // And a question will be raise in your mind: why this endpoint is AllowAnonymous?
 
     //Because if this endpoint is authorized
     //At the first time user come to the application
     //User will get an toast message "Unauthorized" - 401 by middleware
     // because the user is not authenticated yet — they are simply not logged in yet.
-    //Although the user not done wrong anything yet -> bad user experience
+    //Although the user has not done anything wrong yet -> bad user experience
     // Using [AllowAnonymous] lets the controller run, so we can manually check
     // if the user is authenticated and return a clean response instead of an error.
     // This avoids showing an unnecessary and confusing error message to the user.
@@ -56,7 +56,7 @@ public class AccountController(SignInManager<User> signInManager) : BaseApiContr
 
         if(user == null) return Unauthorized();
         //Passing the authorization middleware
-        //user null while user have been deleted, security stamp mismatch, cookie no longer valid, user have been banned, ...
+        //user null when user have been deleted, security stamp mismatch, cookie no longer valid, user have been banned, ...
         //So we return Unauthorized instead of returning user info
         return Ok(new
         {
@@ -68,7 +68,7 @@ public class AccountController(SignInManager<User> signInManager) : BaseApiContr
     }
 
 
-    //Htpp standard method for log out is POST because log out is changing server state, resource
+    //HTTP standard method for log out is POST because log out is changing server state, resource
     //Just get when don't make side effect on server
     //
     //Beside if you choose GET for log out
