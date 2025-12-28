@@ -82,7 +82,7 @@ app.UseMiddleware<ExceptionMiddleware>();
     Adds a CORS middleware to your web application pipeline to allow cross domain requests.
 */
 app.UseCors(options => options.AllowAnyHeader()
-                                .AllowAnyMethod()
+                                .AllowAnyMethod().AllowCredentials()
                                 .WithOrigins("http://localhost:3000", "https://localhost:3000"));
 
 app.UseAuthentication();
@@ -95,6 +95,18 @@ app.UseAuthorization();
 * to requests with the defined routes in the controllers.
 */
 app.MapControllers();
+
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.Equals("/api/register", StringComparison.OrdinalIgnoreCase))
+    {
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        return;
+    }
+ 
+    await next();
+});
+
 app.MapGroup("api").MapIdentityApi<User>(); //  api/login
 
 
