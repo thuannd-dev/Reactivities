@@ -1,12 +1,35 @@
 using System;
 using Domain;
+using Microsoft.AspNetCore.Identity;
 
 namespace Persistence;
 
 public class DbInitializer
 {
-    public static async Task SeedData(AppDbContext context)
+    public static async Task SeedData(AppDbContext context, UserManager<User> userManager)
     {
+
+        if(!userManager.Users.Any())
+        {
+            var users = new List<User>
+            {
+              new() {DisplayName = "Bob", UserName = "bob@test.com", Email = "bob@test.com"} ,
+              new() {DisplayName = "Tom", UserName = "tom@test.com", Email = "tom@test.com"} ,
+              new() {DisplayName = "Jane", UserName = "jane@test.com", Email = "jane@test.com"} ,
+            };
+
+            foreach (var user in users)
+            {
+                //doc: The password for the user to hash and store.
+                //so if you go for a weak password your user will not be created and it fail sliently
+                //Because we're simply not doing any to error handling inside here
+                await userManager.CreateAsync(user, "Pa$$w0rd");
+                //don't need to save changes because DOC: Creates the specified user in the backing store with given password, as an asynchronous operation.
+                //backing store which means where the data is stored (database)
+            }
+        }
+
+
         if (context.Activities.Any()) return;
         var activities = new List<Activity>
         {

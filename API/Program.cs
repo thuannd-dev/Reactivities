@@ -2,7 +2,11 @@ using API.Middleware;
 using Application.Activities.Queries;
 using Application.Activities.Validators;
 using Application.Core;
+using Domain;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
@@ -12,7 +16,18 @@ var builder = WebApplication.CreateBuilder(args);
 //****************************** Add services to the container. ****************************
 //************************************************************************************************
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(opt =>
+{
+    /*
+        Create a global authorization policy that require authenticated user
+        for all endpoints in the application by default.
+        So we don't need to add [Authorize] attribute in each controller.
+        If we wan't an endpoint don't require authenticated just add [AllowAnonymous]
+    */
+    var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+    opt.Filters.Add(new AuthorizeFilter(policy));
+
+});
 builder.Services.AddDbContext<AppDbContext>(opt =>
 {
     opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -46,6 +61,12 @@ builder.Services.AddMediatR(x =>
 builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
 builder.Services.AddValidatorsFromAssemblyContaining<CreateActivityValidator>();
 builder.Services.AddTransient<ExceptionMiddleware>();
+builder.Services.AddIdentityApiEndpoints<User>(opt =>
+{
+    opt.User.RequireUniqueEmail = true;
+}).AddRoles<IdentityRole>()
+.AddEntityFrameworkStores<AppDbContext>();
+
 
 var app = builder.Build();
 
@@ -61,9 +82,12 @@ app.UseMiddleware<ExceptionMiddleware>();
     Adds a CORS middleware to your web application pipeline to allow cross domain requests.
 */
 app.UseCors(options => options.AllowAnyHeader()
-                                .AllowAnyMethod()
+                                .AllowAnyMethod().AllowCredentials()
                                 .WithOrigins("http://localhost:3000", "https://localhost:3000"));
-                                
+
+app.UseAuthentication();
+app.UseAuthorization();          
+
 /*
 * MapControllers middleware provide the routing for application.
 * It maps - pass the incoming HTTP requests to the appropriate- phù hợp controller actions.
@@ -71,6 +95,20 @@ app.UseCors(options => options.AllowAnyHeader()
 * to requests with the defined routes in the controllers.
 */
 app.MapControllers();
+
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.Equals("/api/register", StringComparison.OrdinalIgnoreCase))
+    {
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        return;
+    }
+ 
+    await next();
+});
+
+app.MapGroup("api").MapIdentityApi<User>(); //  api/login
+
 
 /*
     We can't get the service provider from the program class directly, (can't get it from class define it)
@@ -82,8 +120,9 @@ var services = scope.ServiceProvider;
 try
 {
     var context = services.GetRequiredService<AppDbContext>();
+    var userManager = services.GetRequiredService<UserManager<User>>();
     await context.Database.MigrateAsync(); // Apply any pending migrations to the database.
-    await DbInitializer.SeedData(context); // Seed the database with initial data.
+    await DbInitializer.SeedData(context, userManager); // Seed the database with initial data.
 }
 catch (Exception ex)
 {
