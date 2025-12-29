@@ -18,7 +18,6 @@ export const useAccount = () => {
       await queryClient.invalidateQueries({
         queryKey: ["user"],
       });
-      await navigate("/activities");
     },
   });
 
@@ -26,10 +25,10 @@ export const useAccount = () => {
     mutationFn: async () => {
       await agent.post("/account/logout");
     },
-    onSuccess: async () => {
+    onSuccess: () => {
       queryClient.removeQueries({ queryKey: ["user"] });
       queryClient.removeQueries({ queryKey: ["activities"] });
-      await navigate("/");
+      navigate("/");
     },
   });
 
@@ -37,7 +36,7 @@ export const useAccount = () => {
   //  it will re run hook (re run useQuery) every time component re renders, every time useAccount is called
   //And this may be go to api and fetch user info again and again if state of query is stale
   // we don't want that because we just want to fetch user info once when app loads
-  const { data: currentUser } = useQuery({
+  const { data: currentUser, isLoading: loadingUserInfo } = useQuery({
     queryKey: ["user"],
     queryFn: async () => {
       const response = await agent.get<User>("/account/user-info");
@@ -47,5 +46,5 @@ export const useAccount = () => {
     //it mean that if we already have user data in cache we don't need to run this query again
   });
 
-  return { loginUser, currentUser, logoutUser };
+  return { loginUser, currentUser, logoutUser, loadingUserInfo };
 };
