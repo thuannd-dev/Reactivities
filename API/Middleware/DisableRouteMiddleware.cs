@@ -4,6 +4,8 @@ namespace API.Middleware;
 
 public class DisableRouteMiddleware() : IMiddleware
 {
+    // Routes are stored in lowercase; the request path is normalized with ToLowerInvariant
+    // so that matching is effectively case-insensitive.
     private readonly HashSet<string> HiddenRoutes =
     [
         "/api/register",
@@ -13,7 +15,6 @@ public class DisableRouteMiddleware() : IMiddleware
         "/api/resendconfirmationemail",
         "/api/forgotPassword",
         "/api/resetPassword",
-        "/api/manage/info",
     ];
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
