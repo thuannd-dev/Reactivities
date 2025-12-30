@@ -10,6 +10,7 @@ import NotFound from "../../features/errors/NotFound";
 import ServerError from "../../features/errors/ServerError";
 import LoginForm from "../../features/account/LoginForm";
 import RequireAuth from "./RequireAuth";
+import RegisterForm from "../../features/account/RegisterForm";
 
 export const router = createBrowserRouter([
   {
@@ -63,6 +64,10 @@ export const router = createBrowserRouter([
       {
         path: "login",
         element: <LoginForm />,
+      },
+      {
+        path: "register",
+        element: <RegisterForm />,
       },
       {
         path: "*",

@@ -1,10 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { LoginSchema } from "../schemas/loginSchema";
 import agent from "../api/agent";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
+import type { RegisterSchema } from "../schemas/registerSchema";
+import { toast } from "react-toastify";
 
 export const useAccount = () => {
   const queryClient = useQueryClient();
+  const location = useLocation();
   const navigate = useNavigate();
 
   //After user logs in i want to fecth user info to know user already logged in successfully or not
@@ -18,6 +21,16 @@ export const useAccount = () => {
       await queryClient.invalidateQueries({
         queryKey: ["user"],
       });
+    },
+  });
+
+  const registerUser = useMutation({
+    mutationFn: async (creds: RegisterSchema) => {
+      await agent.post("/account/register", creds);
+    },
+    onSuccess: () => {
+      toast.success("Register successful - you can now login");
+      navigate("/login");
     },
   });
 
@@ -42,9 +55,14 @@ export const useAccount = () => {
       const response = await agent.get<User>("/account/user-info");
       return response.data;
     },
-    enabled: !queryClient.getQueryData(["user"]),
-    //it mean that if we already have user data in cache we don't need to run this query again
+    //it mean that if we already have user data in cache we don't need to run this query again and the path is not /register
+    enabled:
+      !queryClient.getQueryData(["user"]) && location.pathname !== "/register",
+    // && location.pathname !== "/login"
+    //When user login, we need to fetch user info and store it in state,
+    //  if disable this, <RequireAuth> will redirect user to login page forever
+    //  instead of letting user access /activities page
   });
 
-  return { loginUser, currentUser, logoutUser, loadingUserInfo };
+  return { loginUser, registerUser, currentUser, logoutUser, loadingUserInfo };
 };
