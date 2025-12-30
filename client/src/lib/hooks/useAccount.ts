@@ -18,7 +18,20 @@ export const useAccount = () => {
     },
     onSuccess: async () => {
       //Invaidate user query that force React Query to refetch user info
-      await queryClient.invalidateQueries({
+      //Best practice in react query is using invalidateQueries after mutation that change data
+      //But a chracteristic of invalidateQueries is not fetch data immediately
+      //  unless query is active (component using the query is mounted)
+      // -> If query is not active invalidateQueries will just mark the query as stale and not fetch data
+      // await queryClient.invalidateQueries({
+      //   queryKey: ["user"],
+      // });
+      //But in this case after login mutation success we need to refetch user info immediately
+      //Because <RequireAuth> need to know user is logged in or not to let user access protected routes
+      //So if we use invalidateQueries the currentUser value in <RequireAuth> may be still undefined
+      //  because the query is not active yet (the component using the query is not mounted yet)
+      //  -> user will be redirected to login page even after login successfully
+      //So in this case we will use queryClient.fetchQuery to fetch user info immediately after login success
+      await queryClient.fetchQuery({
         queryKey: ["user"],
       });
     },
@@ -56,12 +69,21 @@ export const useAccount = () => {
       return response.data;
     },
     //it mean that if we already have user data in cache we don't need to run this query again and the path is not /register
-    enabled:
-      !queryClient.getQueryData(["user"]) && location.pathname !== "/register",
-    // && location.pathname !== "/login"
+    // enabled:
+    //   !queryClient.getQueryData(["user"]) && location.pathname !== "/register",
+    //   && location.pathname !== "/login"
     //When user login, we need to fetch user info and store it in state,
-    //  if disable this, <RequireAuth> will redirect user to login page forever
+    //  if disable location.pathname !== "/login" then the loginUser
+    // will not work properly if we are using invalidateQueries (not fecth immediately),
+    //  <RequireAuth> will redirect user to login page forever
     //  instead of letting user access /activities page
+
+    //In this case it mean that if we already have user data in cache we don't need to run this query again
+    //  and the path is not /register and the path is not /login
+    enabled:
+      !queryClient.getQueryData(["user"]) &&
+      location.pathname !== "/register" &&
+      location.pathname !== "/login",
   });
 
   return { loginUser, registerUser, currentUser, logoutUser, loadingUserInfo };
