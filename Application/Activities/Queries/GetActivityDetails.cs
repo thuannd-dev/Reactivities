@@ -3,6 +3,7 @@ using System.Net;
 using Application.Core;
 using Domain;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Persistence;
 
 namespace Application.Activities.Queries;
@@ -20,7 +21,9 @@ public class GetActivityDetails
         {
             //?? is called null-coalescing operator use to check null
             //if the value of variable in the left operator is null RETURN the value of the right operator.
-            var activity = await context.Activities.FindAsync([request.Id], cancellationToken);
+            var activity = await context.Activities
+            .Include(x => x.Attendees)
+            .FirstOrDefaultAsync(x => request.Id == x.Id, cancellationToken);
                 
             if (activity == null) return Result<Activity>.Failure("Activity Not Found.", 404);
 
