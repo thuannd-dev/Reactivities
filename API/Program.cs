@@ -2,8 +2,10 @@ using API.Middleware;
 using Application.Activities.Queries;
 using Application.Activities.Validators;
 using Application.Core;
+using Application.Interfaces;
 using Domain;
 using FluentValidation;
+using Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -53,6 +55,7 @@ builder.Services.AddMediatR(x =>
 
 });
 
+builder.Services.AddScoped<IUserAccessor, UserAccessor>();
 /*
     Register auto mapper and specify where the assembly - [kết quả biên dịch (compile) của project]
     is to register the mapping profiles with our application.
