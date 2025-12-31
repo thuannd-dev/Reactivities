@@ -11,12 +11,18 @@ public class UserAccessor(IHttpContextAccessor httpContextAccessor, AppDbContext
 {
     public async Task<User> GetUserAsync()
     {
+        //We need query database to get user object.
+        //Because claim store a part of user info only (like id, username, roles,...) not entire user info.
+        //And the data in claim may be outdated.
         return await dbContext.Users.FindAsync(GetUserId())
             ?? throw new UnauthorizedAccessException("No user is logged in");
     }
 
     public string GetUserId()
     {
+        //ClaimTypes.NameIdentifier is the user ID stored in the cookie when user is authenticated.
+        //If no user is authenticated, return null and throw exception.
+        //This way no query to database.
         return httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier) 
             ?? throw new Exception("No user found");
     }
