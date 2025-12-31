@@ -10,16 +10,16 @@ export const useAccount = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  //After user logs in i want to fecth user info to know user already logged in successfully or not
+  //After user logs in i want to fetch user info to know user already logged in successfully or not
   //Because i can't access to cookies from client side (httpOnly cookies)
   const loginUser = useMutation({
     mutationFn: async (creds: LoginSchema) => {
       await agent.post("/login?useCookies=true", creds);
     },
     onSuccess: async () => {
-      //Invaidate user query that force React Query to refetch user info
+      //Invalidate user query that force React Query to refetch user info
       //Best practice in react query is using invalidateQueries after mutation that change data
-      //But a chracteristic of invalidateQueries is not fetch data immediately
+      //But a characteristic of invalidateQueries is not fetch data immediately
       //  unless query is active (component using the query is mounted)
       // -> If query is not active invalidateQueries will just mark the query as stale and not fetch data
       // await queryClient.invalidateQueries({
@@ -74,7 +74,7 @@ export const useAccount = () => {
     //   && location.pathname !== "/login"
     //When user login, we need to fetch user info and store it in state,
     //  if disable location.pathname !== "/login" then the loginUser
-    // will not work properly if we are using invalidateQueries (not fecth immediately),
+    // will not work properly if we are using invalidateQueries (not fetch immediately),
     //  <RequireAuth> will redirect user to login page forever
     //  instead of letting user access /activities page
 

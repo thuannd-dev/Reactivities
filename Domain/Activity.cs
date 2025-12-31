@@ -30,4 +30,7 @@ public class Activity
     public double Latitude { get; set; }
     //kinh độ
     public double Longitude { get; set; }
+
+    //navigation property
+    public ICollection<ActivityAttendee> Attendees { get; set; } = [];
 }
