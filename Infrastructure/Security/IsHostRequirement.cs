@@ -26,8 +26,8 @@ public class IsHostRequirementHandler(AppDbContext dbContext, IHttpContextAccess
         //if the value is not string then return
         //if the value is string then assign to activityId variable
         if (httpContext?.GetRouteValue("id") is not string activityId) return;
-
-        var attendee = await dbContext.ActivityAttendees.SingleOrDefaultAsync(x => x.ActivityId == activityId && x.UserId == userId);
+        var attendee = await dbContext.ActivityAttendees
+            .AsNoTracking().SingleOrDefaultAsync(x => x.ActivityId == activityId && x.UserId == userId);
 
         if(attendee == null) return;
         if(attendee.IsHost) context.Succeed(requirement);
