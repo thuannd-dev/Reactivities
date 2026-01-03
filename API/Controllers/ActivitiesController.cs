@@ -47,6 +47,12 @@ public class ActivitiesController : BaseApiController
         return HandleResult(await Mediator.Send(new DeleteActivity.Command { Id = id }));
     }
 
+    /// <summary>
+    /// Allows an authenticated user to join or leave an activity.
+    /// If the current user is the activity host, the underlying UpdateAttendance
+    /// command will not remove the host from the activity; instead, it toggles
+    /// the activity's cancellation status (IsCancelled).
+    /// </summary>
     [HttpPost("{id}/attend")]
     public async Task<ActionResult> Attend(string id)
     {

@@ -31,7 +31,7 @@ public class UpdateAttendance
             var user = await userAccessor.GetUserAsync();
 
             //should using activity here to query in memory instead of using dbcontext to query in database
-            //Beacause we using .Include(x => x.Attendees).ThenInclude(x => x.User)
+            //Because we using .Include(x => x.Attendees).ThenInclude(x => x.User)
             //So EF load activity, load Attendees of activity, load User of attendee
             //=> activity.Attendees have data, is a List<ActivityAttendee> in memory
             //=> activity.Attendees.FirstOrDefault(x => x.UserId == user.Id) is Linq to object in memory

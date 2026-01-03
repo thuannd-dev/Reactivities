@@ -18,6 +18,17 @@ export const useActivities = (id?: string) => {
       return response.data;
     },
     enabled: !id && location.pathname === "/activities" && !!currentUser,
+    //select is a option can be used to transform or select a part of the data returned
+    // by the query function. It affects the returned data value, but does not affect what gets stored in the query cache.
+    select: (data) => {
+      return data.map((activity) => {
+        return {
+          ...activity,
+          isHost: activity.hostId === currentUser?.id,
+          isGoing: activity.attendees.some((x) => x.id === currentUser?.id),
+        };
+      });
+    },
   });
 
   const { data: activity, isLoading: isLoadingActivity } = useQuery({
@@ -27,6 +38,15 @@ export const useActivities = (id?: string) => {
       return respone.data;
     },
     enabled: !!id && !!currentUser,
+    //select is a option can be used to transform or select a part of the data returned
+    // by the query function. It affects the returned data value, but does not affect what gets stored in the query cache.
+    select: (data) => {
+      return {
+        ...data,
+        isHost: data.hostId === currentUser?.id,
+        isGoing: data.attendees.some((x) => x.id === currentUser?.id),
+      };
+    },
   });
 
   const updateActivity = useMutation({
