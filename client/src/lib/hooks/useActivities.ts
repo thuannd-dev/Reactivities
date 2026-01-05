@@ -87,6 +87,9 @@ export const useActivities = (id?: string) => {
     mutationFn: async (id: string) => {
       await agent.post(`/activities/${id}/attend`);
     },
+    //onSuccess?: ((data: void, variables: string, context: unknown) => unknown)
+    //data is the result of mutationFn(if mutationFn has return value - no return is void)
+    //variables is the same as the parameter of mutationFn
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ["activities", id],
