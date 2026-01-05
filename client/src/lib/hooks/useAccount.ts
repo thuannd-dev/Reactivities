@@ -31,6 +31,10 @@ export const useAccount = () => {
       //  because the query is not active yet (the component using the query is not mounted yet)
       //  -> user will be redirected to login page even after login successfully
       //So in this case we will use queryClient.fetchQuery to fetch user info immediately after login success
+
+      //In conclusion: The difference between the 2 methods is that invalidateQueries will mark the query as stale,
+      //  and if it is currently active it will update immediately otherwise will get the fresh data next time it is used,
+      //  the refetch queries is useful when we want to trigger background updates for inactive queries.
       await queryClient.fetchQuery({
         queryKey: ["user"],
       });

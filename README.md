@@ -1,5 +1,8 @@
  <img src="https://drive.usercontent.google.com/download?id=1GZk0-Ur7bn0NLGEs-hUJvQhnY5fkepbX"/>
+
  <img src="https://drive.usercontent.google.com/download?id=1Wd8gj3ooQG5nxesPWHqxD7SqLe-ueLV3"/>
+
+###### I'll be using our infrastructure project for anything that's kind of outside of our application logic. So our application layer needs to know nothing about authentication to be able to get a user's username. I've decoupled everything in our business logic layer, the application layer from any outside concerns such as how does the user authenticate and our application layer doesn't need to worry about any of that. So i'll use that infrastructure project for other things as we come across them that are not directly related to our business logic.
 
 ### Dependency Inversion: High-level dependent on Abstraction, not Implementation
 
@@ -21,7 +24,7 @@ Framework
 
 Database cụ thể
 
-➡ Application chỉ biết logic nghiệp vụ.
+→ Application chỉ biết logic nghiệp vụ.
 
 2️. Nhưng trong logic, đôi khi cần biết username của user hiện tại đang thực hiện hành động.
 
@@ -70,7 +73,7 @@ private readonly IHttpContextAccessor _context;
 }
 ```
 
-➡ Đây là nơi giải mã token, đọc claim, lấy username.
+→ Đây là nơi giải mã token, đọc claim, lấy username.
 
 4️. API Layer sẽ đăng ký DI của implementation này
 
@@ -93,7 +96,7 @@ API → Infrastructure (để gọi các service)
 Application không phụ thuộc Infrastructure
 Application không phụ thuộc API
 
-➡ Điều này đảm bảo Application layer không bao giờ bị thay đổi khi thay đổi framework hoặc cách authentication.
+→ Điều này đảm bảo Application layer không bao giờ bị thay đổi khi thay đổi framework hoặc cách authentication.
 
 6️. Tại sao làm vậy?
 
