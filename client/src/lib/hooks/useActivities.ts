@@ -90,10 +90,73 @@ export const useActivities = (id?: string) => {
     //onSuccess?: ((data: void, variables: string, context: unknown) => unknown)
     //data is the result of mutationFn(if mutationFn has return value - no return is void)
     //variables is the same as the parameter of mutationFn
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ["activities", id],
-      });
+    // onSuccess: async () => {
+    //   await queryClient.invalidateQueries({
+    //     queryKey: ["activities", id],
+    //   });
+    // },
+
+    //Optimistic Updates
+    // When mutate is called:
+    onMutate: async (activityId: string) => {
+      // Cancel any outgoing refetches
+      // (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey: ["activities", activityId] });
+
+      // Snapshot the previous value
+      const prevActivity = queryClient.getQueryData<Activity>([
+        "activities",
+        activityId,
+      ]);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData<Activity>(
+        ["activities", activityId],
+        (oldActivity) => {
+          if (!oldActivity || !currentUser) return oldActivity;
+
+          const isHost = oldActivity.hostId === currentUser.id;
+          const isAttending = oldActivity.attendees.some(
+            (x) => x.id === currentUser.id
+          );
+
+          return {
+            ...oldActivity,
+            isCancelled: isHost
+              ? !oldActivity.isCancelled
+              : oldActivity.isCancelled,
+            attendees: isAttending
+              ? isHost
+                ? oldActivity.attendees
+                : oldActivity.attendees.filter((x) => x.id !== currentUser.id)
+              : [
+                  ...oldActivity.attendees,
+                  {
+                    id: currentUser.id,
+                    displayName: currentUser.displayName,
+                    imageUrl: currentUser.imageUrl,
+                  },
+                ],
+          };
+        }
+      );
+
+      // Return a context with the previous
+      return { prevActivity };
+    },
+    // If the mutation fails, use the context we returned above
+    onError: (error, activityId, context) => {
+      console.log(error);
+      if (context?.prevActivity) {
+        queryClient.setQueryData(
+          ["activities", activityId],
+          context.prevActivity
+        );
+      }
+    },
+    // Always refetch after error or success:
+    onSettled: (activityId) => {
+      queryClient.invalidateQueries({ queryKey: ["activities", activityId] });
     },
   });
 
