@@ -122,7 +122,7 @@ Application tạo một interface IUserAccessor.
 
 Infrastructure implement nó bằng cách đọc token trong HttpContext, còn API đăng ký DI.
 
-# Why you shoiuld left column UserId is nullable in Photo table?
+# Why you should left column UserId is nullable in Photo table?
 
 - It means when i delete a User, the related Photo will not be deleted automatically. Because UserId is nullable, so EF Core will just set UserId to null in Photo table.
 - Because if we did delete the images from our database automatically when we deleted a user, then why might that not be a good idea? Well, if we think about where we're storing our images, then they're being stored in cloudinary. And if we delete a user is they're going to be any process in our application to then automatically go and delete those images from Cloudinary.
