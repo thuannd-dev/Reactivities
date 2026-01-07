@@ -57,6 +57,8 @@ builder.Services.AddMediatR(x =>
 });
 
 builder.Services.AddScoped<IUserAccessor, UserAccessor>();
+builder.Services.AddScoped<IPhotoService, PhotoService>();
+
 /*
     Register auto mapper and specify where the assembly - [kết quả biên dịch (compile) của project]
     is to register the mapping profiles with our application.
