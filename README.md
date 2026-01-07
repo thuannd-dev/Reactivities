@@ -121,3 +121,14 @@ Application layer cần username, nhưng không được biết authentication h
 Application tạo một interface IUserAccessor.
 
 Infrastructure implement nó bằng cách đọc token trong HttpContext, còn API đăng ký DI.
+
+# Why you shoiuld left column UserId is nullable in Photo table?
+
+- It means when i delete a User, the related Photo will not be deleted automatically. Because UserId is nullable, so EF Core will just set UserId to null in Photo table.
+- Because if we did delete the images from our database automatically when we deleted a user, then why might that not be a good idea? Well, if we think about where we're storing our images, then they're being stored in cloudinary. And if we delete a user is they're going to be any process in our application to then automatically go and delete those images from Cloudinary.
+- I will delete the photo by cron job or background service later.
+- It help increase performance of application. Because if we make delete cascade, when we delete a User, it will delete all related Photos in a single transaction. It may take long time and lock the database tables. And if a error occurs, the whole transaction will be rolled back.
+- You will able to implement feature rollback the delete User operation if needed.
+- Clean batch is make less requests to database and cloudinary service when delete User.
+- you will using hangfire to implement background job to delete the photos in cloudinary and related records in database.
+- The last one is i'm not going to let users delete their user accounts anyway, and we're not going to have thousands of orphaned photos in Cloudinary so i don't need to worry about that scenario. And i going to implement cascade delete in this case =)))) It just appropriate  for this application.
