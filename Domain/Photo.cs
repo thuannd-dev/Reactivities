@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 
 namespace Domain;
 
@@ -11,5 +12,7 @@ public class Photo
     //navigation properties
     //if we don't define navigation properties EF Core will also create a property for UserId but it will be nullable
     public required string UserId { get; set; }
+    
+    [JsonIgnore]
     public User User { get; set; } = null!;
 }
